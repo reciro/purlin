@@ -1,13 +1,13 @@
 CC = clang
-CFLAGS = -Wall -Wextra
-OUTPUT = main
+CFLAGS = -g -Wall -Wextra
+OUTPUT = purlin
 
-main: main.c
-	$(CC) main.c $(CFLAGS) -o $(OUTPUT)
+main: purlin.c 
+	$(CC) purlin.c $(CFLAGS) -o $(OUTPUT)
 
 .PHONY: run
 run: main
-	./main
+	./purlin --threads=16 --cores=16
 
 clean: 
 	rm $(OUTPUT)
