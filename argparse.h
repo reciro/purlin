@@ -15,13 +15,21 @@
 "       --threads (-t) x\n" \
 "       --cores (-c)\n y" \
 "       --threads (-t)\n z" \
-"See ./purlin -h for more information"
+"See ./purlin -h for more information.\n"
+
+// Threads
 #define ARG1v1 "--threads=" 
 #define ARG1v2 "-t="
+
+// Cores
 #define ARG2v1 "--cores="
 #define ARG2v2 "-c="
+
+// Binary Path
+#define ARG3v1 "--path="
+#define ARG3v2 "-p="
 #define STR_LEN_MAX 256
-#define POSSIBLE_ARGS 2
+#define POSSIBLE_ARGS 3
 #endif
 
 typedef enum {
@@ -32,12 +40,14 @@ typedef enum {
 
 char **parse_args(int argc, char** argv);
 void arg_extraction(char* arg, ull* arg_value, ARG_TYPES arg_type);
+void parse_arg_string(char* arg, char** value, ARG_TYPES arg_type);
 
 char **parse_args(int argc, char** argv) {
     printf("\nNumber of args: %d\n", argc); // TODO: Print out the args
-    char **parsed_args = (char**)malloc(sizeof (char*) * POSSIBLE_ARGS);
+    char **parsed_args = (char**)calloc(POSSIBLE_ARGS,sizeof (char*));
     ull thread = INT_MAX;
     ull core = INT_MAX;
+    char *path = (char*)calloc(STR_LEN_MAX, sizeof(char));
     switch (argc) {
         case 1: 
             goto quit;
@@ -47,8 +57,6 @@ char **parse_args(int argc, char** argv) {
                 printf(HELP_PRINT);
             }
             else {
-                // char msg[STR_LEN_MAX];
-                // snprintf(msg, sizeof(msg), "Invalid argument: %s\n", argv[1]);
                 log_print(ERROR_LEVEL, MISSING_ARG);
             }
             goto quit;
@@ -68,6 +76,11 @@ char **parse_args(int argc, char** argv) {
                          strncmp(argv[i], ARG2v2, sizeof ARG2v2 - 2) == 0) {
                     arg_extraction(argv[i], &core, CORES_ARG);
                 }
+                // path arg
+                else if (strncmp(argv[i], ARG3v1, sizeof ARG3v1 - 2) == 0 ||
+                         strncmp(argv[i], ARG3v2, sizeof ARG3v2 - 2) == 0) {
+                    parse_arg_string(argv[i], &path, BINARY_PATH_ARG);
+                }
                 else {
                     char msg[STR_LEN_MAX];
                     snprintf(msg, sizeof(msg), "Invalid argument: %s\n", argv[i]);
@@ -78,28 +91,38 @@ char **parse_args(int argc, char** argv) {
 
             parsed_args[0] = (char*)malloc(STR_LEN_MAX);
             parsed_args[1] = (char*)malloc(STR_LEN_MAX);
+            parsed_args[2] = (char*)malloc(STR_LEN_MAX);
             snprintf(parsed_args[0], STR_LEN_MAX, "%lld", thread);
             snprintf(parsed_args[1], STR_LEN_MAX, "%lld", core);
+            snprintf(parsed_args[2], STR_LEN_MAX, "%s", path);
             break;
     }
     return parsed_args;
 }
 
-void arg_extraction(char* arg, ull* arg_value, ARG_TYPES arg_type) {
-    const char *equals = strchr(arg, '=');
+void parse_arg_string(char* arg, char** value, ARG_TYPES arg_type) {
+    char *equals = strchr(arg, '=');
+
     if (equals == NULL || equals[1] == '\0') {
         if (arg_type == THREADS_ARG) log_print(ERROR_LEVEL, "Missing value for thread argument");
         else if (arg_type == CORES_ARG) log_print(ERROR_LEVEL, "Missing value for core argument");
+        else if (arg_type == BINARY_PATH_ARG) log_print(ERROR_LEVEL, "Missing value for binary path argument");
         exit(EXIT_FAILURE);
     }
 
-    const char *value = equals + 1;
+    *value = equals + 1;
     if (value == NULL) {
         if (arg_type == THREADS_ARG) log_print(ERROR_LEVEL, "Missing value for thread argument");
         else if (arg_type == CORES_ARG) log_print(ERROR_LEVEL, "Missing value for core argument");
+        else if (arg_type == BINARY_PATH_ARG) log_print(ERROR_LEVEL, "Missing value for binary path argument");
         exit(EXIT_FAILURE);
     }
+}
 
+// Extracts arg value of thread and core
+void arg_extraction(char* arg, ull* arg_value, ARG_TYPES arg_type) {
+    char *value;
+    parse_arg_string(arg, &value, arg_type);
     if (*arg_value == INT_MAX) {
         char *end;
         errno = 0;

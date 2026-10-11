@@ -16,7 +16,10 @@ int main(int argc, char** argv) {
     char cores[4];
     snprintf(cores, sizeof(cores), "%d", MIN(atoi(parsed_args[1]), get_hardware_cores()));
 
-    char *program_args[] = {num_threads, cores};
+    char path[STR_LEN_MAX];
+    snprintf(path, sizeof(path), "%s", parsed_args[2]);
+    
+    char *program_args[] = {num_threads, cores, path};
 
     run_multithreaded(run_program, program_args);
     
@@ -35,10 +38,7 @@ release_mem:
 }
 
 
+void* run_program(void* _) {
 
-void* run_program(void* arg) {
-    char **args = arg;
-    printf("args[2]: %s\n", args[2]);
-
-    return 0;
+    return NULL;
 }

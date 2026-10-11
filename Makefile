@@ -7,7 +7,7 @@ main: purlin.c
 
 .PHONY: run
 run: main
-	./purlin --threads=16 --cores=16
+	./purlin --threads=16 --cores=16 --path=/tmp/tmp
 
 clean: 
 	rm $(OUTPUT)

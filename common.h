@@ -45,9 +45,9 @@ void log_print(PRINT_LOG_LEVEL log_level, char* msg);
 
 void log_print(PRINT_LOG_LEVEL log_level, char* msg) {
     switch ( log_level ) {
-        case INFO_LEVEL: printf("[INFO] %s\n", msg);
-        case WARNING_LEVEL: printf("[WARNING] %s\n", msg);
-        case ERROR_LEVEL: printf("[ERROR] %s\n", msg);
+        case INFO_LEVEL: printf("[INFO] %s", msg); break;
+        case WARNING_LEVEL: printf("[WARNING] %s", msg); break;
+        case ERROR_LEVEL: printf("[ERROR] %s", msg); break;
     }
 }
 

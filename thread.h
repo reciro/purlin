@@ -1,5 +1,6 @@
 #ifndef THREAD_H
 #define THREAD_H
+#include "argparse.h"
 #include "common.h" 
 #include <stdio.h>
 
@@ -27,16 +28,20 @@ int run_multithreaded(void* (*run_program)(void *), void* argument) {
     char **args = argument;
 
     int hardware_threads = atoi(args[0]);
-    printf("Running with %d threads\n", hardware_threads);
-    printf("Running with %s cores\n", args[1]);
+
+    char msg[STR_LEN_MAX];
+
+    snprintf(msg, sizeof(msg), "Running with %d threads\n", hardware_threads);
+    log_print(INFO_LEVEL, msg);
+    snprintf(msg, sizeof(msg), "Running with %s cores\n", args[1]);
+    log_print(INFO_LEVEL, msg);
+    snprintf(msg, sizeof(msg), "Running on binary path %s\n", args[2]);
+    log_print(INFO_LEVEL, msg);
+
     pthread_t threads[hardware_threads];
-
-
 
     for (int i = 0; i < hardware_threads; i++) {
         pthread_t thread;
-        args[2] = (char*)malloc(8 * sizeof(char));
-        snprintf(args[2], 8, "%d", i); // TODO: Use sizeof(args[2])
         if (pthread_create(&thread, NULL, run_program, args) != 0) {
             perror("pthread_create");
             return EXIT_FAILURE;
